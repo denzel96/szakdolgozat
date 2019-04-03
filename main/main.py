@@ -1,10 +1,8 @@
 from github import Github
 
-g = Github('aa15a84cfcb39f88f09c847c760d7c3d19814028')
-print("hello")
+g = Github('7d0107588539fb77a9710176f92e55eb70290881')
 
-for repo in g.get_user().get_repos():
-    print(repo.name)
-    print(repo.full_name)
-
-print("hello")
+repo = g.get_repo("denzel96/copper")
+c = repo.get_commits()
+print(c)
+print(c.get_page(0)[0].commit.message)
