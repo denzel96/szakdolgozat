@@ -3,6 +3,7 @@
 # TODO diff file encoding
 #  (UnicodeEncodeError: 'charmap' codec can't encode character '\xaf' in position 3214: character maps to <undefined>)
 # TODO parallel processes
+# TODO download only '*.py' files
 from github import Github
 import requests
 from gui import show_app
