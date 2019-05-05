@@ -2,6 +2,7 @@
 # TODO skip already downloaded diff files
 # TODO diff file encoding
 #  (UnicodeEncodeError: 'charmap' codec can't encode character '\xaf' in position 3214: character maps to <undefined>)
+# TODO parallel processes
 from github import Github
 import requests
 from gui import show_app
@@ -30,7 +31,7 @@ def get_message(commit):
         return commit.commit.message
 
 
-def get_diff_files(repo, commit):
+def get_diff_files(repo, commit, ind, size):
     this = commit.commit
     parent = commit.parents[0]
 
@@ -46,7 +47,7 @@ def get_diff_files(repo, commit):
     for i in range(0, len(parse_diff_files(diff_text))):
         new.append(parse_diff_files(diff_text)[i][1])
 
-    write_files(old, new, commit.sha)
+    write_files(old, new, commit.sha, ind, size)
 
 
 def parse_diff_files(diff_text):
@@ -71,22 +72,26 @@ def process_diff_item(item):
             old_version.append(line[1:])
             new_version.append(line[1:])
 
-    new_text = '\n'.join(new_version)
-    old_text = '\n'.join(old_version)
+    new_text = str('\n'.join(new_version))
+    old_text = str('\n'.join(old_version))
     return [old_text, new_text]
 
 
-def write_files(old, new, sha):
+def write_files(old, new, sha, i, size):
+    print('\t\t' + str(i) + '/' + str(size) + '\t' + str(sha))
     old_filename = 'training/' + str(sha) + '.o'
     new_filename = 'training/' + str(sha) + '.n'
-    old_file = open(old_filename, 'w+')
-    new_file = open(new_filename, 'w+')
+    old_file = open(old_filename, 'w+', encoding="utf8")
+    new_file = open(new_filename, 'w+', encoding="utf8")
 
-    old_str = '\n'.join(old)
-    new_str = '\n'.join(new)
+    old_str = str('\n'.join(old))
+    new_str = str('\n'.join(new))
 
     old_file.write(old_str)
     new_file.write(new_str)
+
+    old_file.close()
+    new_file.close()
 
 
 ##########
@@ -116,11 +121,13 @@ for link in codeBase:
     print('\t' + str(len(commits)) + ' commits found')
     print('\tCreating diff files...')
 
+    i = 0
     for commit in commits:
-        get_diff_files(current_repo, commit)
+        i = i + 1
+        get_diff_files(current_repo, commit, i, len(commits))
 
     print('\tDiff files are ready')
 
 end = time.time()
 print('Endtime: ' + str(end))
-print('Duration : ' + str(math.floor(end-start)) + ' seconds')
+print('Duration : ' + str(math.floor(end - start)) + ' seconds')
